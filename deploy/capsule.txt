@@ -1,0 +1,5 @@
+kubectl apply -f capsule.yml
+./create-user.sh langapiadmin language-api
+export export KUBECONFIG=langapiadmin-language-api.kubeconfig
+kubectl create namespace langapi-main
+# add langapi-main as a namespace to langapiadmin-language-api.kubeconfig

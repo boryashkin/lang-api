@@ -1,0 +1,17 @@
+version: '3.1'
+
+networks:
+  langapi-network:
+    name: langapi-network
+
+services:
+  mongo:
+    image: mongo:6.0.4
+    container_name: "langapi-mongo"
+    restart: on-failure
+    ports:
+    - 27017:27017
+    volumes:
+      - ./data/mongo:/data/db
+    networks:
+      - langapi-network

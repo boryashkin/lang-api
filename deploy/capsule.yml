@@ -1,0 +1,13 @@
+---
+apiVersion: capsule.clastix.io/v1beta2
+kind: Tenant
+metadata:
+  name: language-api
+spec:
+  owners:
+  - name: langapiadmin
+    kind: User
+    proxySettings:
+        - kind: PersistentVolumes
+          operations:
+            - List
