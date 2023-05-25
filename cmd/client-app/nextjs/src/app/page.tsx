@@ -31,7 +31,10 @@ const videos : Text[]= [
     videoUri: "",
     title: "Правила будут выделены цветами",
     text: "Нажимайте на цветной текст, чтобы увидеть их описания.",
-    rules: [],
+    rules: [
+      {text: "Правила будут выделены ", ruleDescription: "", ruleName: "", color: ""},
+      {text: "цветами", ruleDescription: "Вот так", ruleName: "Описание", color: "red"},
+    ],
     type: TextType.Text,
   },
   {
@@ -95,18 +98,20 @@ const videos : Text[]= [
     videoUri: "",
     title: "Вы посмотрели демо",
     text: "Перед полноценным запуском проекта, хотелось бы услышать ваши впечатления и отзывы. Прошу вас оставить комментарии в блоге (ссылка Blog выше).",
-    rules: [],
+    rules: [
+      {text: "Перед полноценным запуском проекта, хотелось бы услышать ваши впечатления и отзывы. Прошу вас оставить комментарии в блоге (ссылка Blog выше).", ruleDescription: "", ruleName: "", color: ""},
+    ],
     type: TextType.Form,
   },
 ];
-function TextLesson(props: Text) {
+function TextLesson(props: {text: Text; handleSpanClick: MouseEventHandler<Element> | undefined}) {
   return (
     <div className="sm:flex sm:items-start">
             <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 className="text-base font-semibold leading-6 text-gray-900 lg:text-2xl" id="modal-title">{props.title}</h3>
+              <h3 className="text-base font-semibold leading-6 text-gray-900 lg:text-2xl" id="modal-title">{props.text.title}</h3>
               <div className="mt-2">
                 <p className="text-sm lg:text-lg text-gray-500 whitespace-pre-wrap">
-                <TextSpanList text={props} handleSpanClick={() => {}}/>
+                <TextSpanList text={props.text} handleSpanClick={props.handleSpanClick}/>
                   </p>
               </div>
             </div>
@@ -128,28 +133,21 @@ function TextSpanList(props: {text: Text, handleSpanClick: MouseEventHandler<Ele
     <>{listRules}</>
   );
 }
-function VideoLesson(props: Text) {
-  const [noteText, setNoteText] = useState(EMPTY_NODE_DESCRIPTION);
-
-  const handleSpanClick = (event: React.MouseEvent<HTMLButtonElement>) => {    
-    setNoteText({title: event.currentTarget.title, text: event.currentTarget.getAttribute("data-body") ?? ""})
-  }
-  
+function VideoLesson(props: {text: Text; handleSpanClick: MouseEventHandler<Element> | undefined}) {
   return (
-    <div>
-      <NoteDescription title={noteText.title} text={noteText.text} hidden={noteText.title==""} onclick={() => {setNoteText(EMPTY_NODE_DESCRIPTION)}}/>
-      <video className="m-auto" width={720} height={405} poster={props.posterUri} preload="auto" controls={true} autoPlay={false} muted={false} playsInline={true} loop={false} id="video">
-        <source type="video/mp4" src={props.videoUri} id="mp4"></source>
+    <>
+      <video className="m-auto" width={720} height={405} poster={props.text.posterUri} preload="auto" controls={true} autoPlay={false} muted={false} playsInline={true} loop={false} id="video">
+        <source type="video/mp4" src={props.text.videoUri} id="mp4"></source>
         <p>Your user agent does not support the HTML5 Video element.</p>
       </video>
       <div id="text_content" className="text-center mt-3">
-        <div className="text-2xl text-black"><TextSpanList text={props} handleSpanClick={handleSpanClick}/></div>
+        <div className="text-2xl text-black"><TextSpanList text={props.text} handleSpanClick={props.handleSpanClick}/></div>
       </div>
-    </div>
+    </>
   )
 }
-function Lesson(props: Text) {
-  if (props.type == TextType.Video) {
+function Lesson(props: {text: Text; handleSpanClick: MouseEventHandler<Element> | undefined}) {
+  if (props.text.type == TextType.Video) {
     return <VideoLesson {...props}/>
   }
 
@@ -158,6 +156,12 @@ function Lesson(props: Text) {
 
 function LessonHolderDesign2() {
   const [currentTextIdx, setCurrentTextIdx] = useState(0);
+  const [noteText, setNoteText] = useState(EMPTY_NODE_DESCRIPTION);
+
+  // todo: it can be rewritten to useEffect: don't pass the handleSpanClick through Lesson components, just listen for "span#notification".onclick 
+  const handleSpanClick = (event: React.MouseEvent<HTMLButtonElement>) => {    
+    setNoteText({title: event.currentTarget.title, text: event.currentTarget.getAttribute("data-body") ?? ""})
+  }
   let currentText = videos[currentTextIdx]
   const handleNext = (event: React.MouseEvent<HTMLButtonElement>) => {    
     if (currentTextIdx < videos.length - 1) {
@@ -177,14 +181,15 @@ function LessonHolderDesign2() {
         }
       })
     }
-  });
+  }, [currentTextIdx]);
 
   return (
 
     <div id="lesson_container" className="mx-auto container">
       <div className="relative overflow-hidden sm:rounded-lg bg-white text-left shadow-xl transition-all m-auto">
+      <NoteDescription title={noteText.title} text={noteText.text} hidden={noteText.title==""} onclick={() => {setNoteText(EMPTY_NODE_DESCRIPTION)}}/>
         <div className="bg-white sm:px-4 pb-4 pt-0 sm:p-6 sm:pb-4">
-          <Lesson {...currentText} />
+          <Lesson text={currentText} handleSpanClick={handleSpanClick} />
         </div>
         <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
           {currentTextIdx < videos.length - 1 && 
