@@ -1,11 +1,15 @@
-
-import LessonHolder from '@/components/lesson/LessonHolder';
 import Text, { TextType } from '@/interfaces/Text';
-import type { InferGetServerSidePropsType, GetServerSideProps } from 'next';
-import Link from 'next/link';
-const videos : Text[]= [
+import { NextResponse } from 'next/server';
+//import { NextResponse } from 'next/server';
+ 
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
   
-  {
+  return NextResponse.json( videos )
+}
+
+const videos : Text[] = [{
     id: "2",
     posterUri: "",
     videoUri: "",
@@ -85,38 +89,3 @@ const videos : Text[]= [
   },
 ];
 
-type Repo = {
-  name: string;
-};
-
-async function getData(): Promise<Repo[]> {
-  const res = await fetch('https://devk1.borisd.ru/api.json');
- 
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-
-  const repo = await res.json(); 
-  
-  return repo;
-}
-
-export default async function Page({ params }: { params: { slug: string } }) {
-  console.log("/Page rerender")
-  const data = await getData();
-  
-  let idx = parseInt(params.slug)
-  if (isNaN(idx)) {
-    idx = 1
-  }
-  let nextIdx = idx + 1
-  let currentVideo = videos[idx-1]
-
-  console.log("SLUG", params.slug, idx, nextIdx)
-
-  return (
-  <div>
-    <LessonHolder currentText={currentVideo} />  
-  </div>
-  );
-}

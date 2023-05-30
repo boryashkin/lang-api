@@ -7,7 +7,7 @@ export function TextSpanList(props: { text: Text, handleSpanClick: MouseEventHan
     const listRules = props.text.rules.map((rule: TextRule, index: number) => {
         let spanClasses = ""
         if (rule.ruleName !== "") {
-            spanClasses = "note-element rounded-lg hover:bg-opacity-50"
+            spanClasses = "note-element rounded-lg hover:bg-opacity-50 hover:border-b-black hover:border-b-2"
             spanClasses += " bg-" + rule.color + "-200"
         }
         return <span key={"note-span-" + props.text.id + "-" + index} data-body={rule.ruleDescription} onClick={props.handleSpanClick} className={spanClasses} title={rule.ruleName}>{rule.text}</span>
