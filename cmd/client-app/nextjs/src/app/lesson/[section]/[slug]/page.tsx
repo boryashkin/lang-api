@@ -85,7 +85,7 @@ import Text, { TextType } from '@/interfaces/Text';
 
 
 async function getData(): Promise<Text[]> {
-  const res = await fetch('http://localhost:3000/api?1');
+  const res = await fetch('http://localhost:3000/api/lessons?5');
 
   if (!res.ok) {
     throw new Error('Failed to fetch data');

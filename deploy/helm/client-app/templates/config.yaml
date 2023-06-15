@@ -1,0 +1,13 @@
+{{- if .Values.envFrom -}}
+{{- $fullName := include "client-app.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "client-app.fullname" . }}-config
+  labels:
+    {{- include "client-app.labels" . | nindent 4 }}
+data:
+  {{- with .Values.envFrom }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

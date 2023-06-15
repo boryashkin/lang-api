@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"runtime/debug"
@@ -19,6 +22,19 @@ import (
 )
 
 func main() {
+	a := `sdasdadssdfsdf
+	sdfsdf
+	sdf
+	dsf
+	ad`
+	b := "asdassdfda"
+	l := sync.Mutex{}
+	c := sync.NewCond(&l)
+	c.L.Lock()
+	atomic.CompareAndSwapInt64()
+	runtime.Caller()
+
+	fmt.Println(a, b)
 	opts := slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	}

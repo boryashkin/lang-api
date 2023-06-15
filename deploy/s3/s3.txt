@@ -1,0 +1,1 @@
+aws s3api put-bucket-policy --bucket lang-api-media --policy file://media-policy.json --endpoint-url=https://s3k.borisd.ru

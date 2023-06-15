@@ -1,7 +1,8 @@
 import Text, { TextType } from '@/interfaces/Text';
 import { NextResponse } from 'next/server';
-//import { NextResponse } from 'next/server';
  
+const prefix = (process.env.ASSET_PREFIX_CDN ?? "").replace(/\/$/, '')
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
@@ -23,8 +24,8 @@ const videos : Text[] = [{
   },
   {
     id: "3",
-    posterUri: "/tbbt_1.jpeg",
-    videoUri: "/tbbt_1.mp4",
+    posterUri: prefix + "/media/tbbt_1.jpeg",
+    videoUri: prefix + "/media/tbbt_1.mp4",
     title: "",
     text: "I need your help",
     rules: [
@@ -36,8 +37,8 @@ const videos : Text[] = [{
   },
   {
     id: "4",
-    posterUri: "/tbbt_1.jpeg",
-    videoUri: "/tbbt_3.mp4",
+    posterUri: prefix + "/media/tbbt_1.jpeg",
+    videoUri: prefix + "/media/tbbt_3.mp4",
     title: "",
     text: "Oh yeah, those guy can be very stubborn",
     rules: [
@@ -49,8 +50,8 @@ const videos : Text[] = [{
   },
   {
     id: "5",
-    posterUri: "/tbbt_1.jpeg",
-    videoUri: "/tbbt_4.mp4",
+    posterUri: prefix + "/media/tbbt_1.jpeg",
+    videoUri: prefix + "/media/tbbt_4.mp4",
     title: "",
     text: "I'm asserting in the event of Batman's death proves permanent, the original Robin, Dick Grayson, is the logical successor to the Bat Cowl",
     rules: [
@@ -65,8 +66,8 @@ const videos : Text[] = [{
   },
   {
     id: "6",
-    posterUri: "/tbbt_1.jpeg",
-    videoUri: "/tbbt_5.mp4",
+    posterUri: prefix + "/media/tbbt_1.jpeg",
+    videoUri: prefix + "/media/tbbt_5.mp4",
     title: "",
     text: " I'm afraid you couldn't be more wrong",
     rules: [

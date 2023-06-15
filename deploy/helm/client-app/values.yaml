@@ -1,0 +1,134 @@
+# Default values for client-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/boryashkin/lang-api
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  #tag: "0.2.0"
+
+envFrom: false
+# if enabled, a cfg "{{ $fullName }}-config" should contain NODE_ENV=production for example
+
+imagePullSecrets: [
+  {name: regcred}
+]
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 3000
+  annotations: 
+    traefik.ingress.kubernetes.io/service.passhostheader: "false"
+
+external_service:
+  name: k3s-link
+  external_name: s3k.s3gw.svc.cluster.local
+  external_port: 80
+
+ingress:
+  enabled: true
+  redirecttohttps_enabled: true
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  hosts:
+    - host: langdev.borisd.ru
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+        - path: /media
+          pathType: Prefix
+          backend:
+            service:
+              name: k3s-link
+              port:
+                number: 80
+    - host: langapi.borisd.ru
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+        - path: /media
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: k3s-link
+              port:
+                number: 80
+  tls: [
+    {secretName: star-borisd-secret}
+  ]
+
+ingress_external:
+  enabled: true
+  redirecttohttps_enabled: false # useless
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+  headers:
+    customRequestHeaders:
+      Host: "langapi.borisd.ru"
+  hosts:
+    - host: langapi.akamaized.net
+      paths:
+        - path: /_next/static
+          pathType: ImplementationSpecific
+        - path: /media
+          pathType: ImplementationSpecific
+        - path: /media
+          pathType: Prefix
+          backend:
+            service:
+              name: k3s-link
+              port:
+                number: 80
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  apiVersion: autoscaling/v2
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

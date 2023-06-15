@@ -1,0 +1,11 @@
+{{- if or .Values.ingress.redirecttohttps_enabled .Values.ingress_external.redirecttohttps_enabled -}}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirectscheme
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}
