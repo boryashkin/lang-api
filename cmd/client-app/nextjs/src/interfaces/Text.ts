@@ -3,7 +3,7 @@ import TextRule from "./TextRule";
 export default interface Text{
     id: string;
     posterUri: string;
-    videoUri: string;
+    mediaUri: string;
     title: string;
     text: string;
     rules: TextRule[];

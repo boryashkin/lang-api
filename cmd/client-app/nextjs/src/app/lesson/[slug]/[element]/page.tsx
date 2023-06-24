@@ -1,6 +1,8 @@
 
-import LessonHolder from '@/components/lesson/LessonHolder';
+import LessonListContainer from '@/components/lesson/LessonHolder';
+import Lesson from '@/interfaces/Lesson';
 import Text, { TextType } from '@/interfaces/Text';
+import { notFound } from 'next/navigation';
 
 // const videos: Text[] = [
 //   {
@@ -84,31 +86,38 @@ import Text, { TextType } from '@/interfaces/Text';
 // ];
 
 
-async function getData(): Promise<Text[]> {
-  const res = await fetch('http://localhost:3000/api/lessons?5');
+async function getData(slug: string): Promise<Lesson|undefined> {
+  const res = await fetch('http://localhost:3000/api/lessons/' + slug);
 
+  console.log(slug, res.status, res.statusText, res.ok)
+  if (res.status == 404) {
+    return undefined
+  }
   if (!res.ok) {
-    throw new Error('Failed to fetch data');
+    throw new Error('Failed to fetch data, ' + res.status);
   }
 
-  const repo : Text[] = await res.json();
+  const repo : Lesson|undefined = await res.json();
 
   return repo;
 }
 
-export default async function Page({ params }: { params: { section: string; slug: string } }) {
-  console.log("/Page rerender")
-  const videos = await getData();
+export default async function Page({ params }: { params: { slug: string, element: string } }) {
+  console.log("lesson/slug rerender")
+  const lesson = await getData(params.slug);
+  if (!lesson) {
+    return notFound()
+  }
 
-  let tmpIdx = videos.findIndex((element: Text) => element.id == params.slug)
-  if (tmpIdx < 0 || tmpIdx >= videos.length - 1) {
+  let tmpIdx = lesson.texts.findIndex((element: Text) => element.id == params.slug)
+  if (tmpIdx < 0 || tmpIdx >= lesson.texts.length - 1) {
     tmpIdx = 0
   }
-  let currentVideo = videos[tmpIdx]
+  let currentVideo = lesson.texts[tmpIdx]
 
   return (
     <div>
-      <LessonHolder currentText={currentVideo} tmpVideos={videos} />
+      <LessonListContainer currentText={currentVideo} tmpVideos={lesson.texts} />
     </div>
   );
 }

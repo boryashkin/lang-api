@@ -1,11 +1,11 @@
-import LessonHolder from '@/components/lesson/LessonHolder';
+import LessonListContainer from '@/components/lesson/LessonHolder';
 import Text, { TextType } from '@/interfaces/Text';
 import Link from 'next/link';
 
 const defaultText: Text = {
   id: "1",
   posterUri: "",
-  videoUri: "",
+  mediaUri: "",
   title: "Сервис для изучения языков",
   text: "Учите английский на огромном количестве реальных примеров. Здесь вы можете отработать как правила языка, так и произношение.\n\nСмотрите видео, слушайте аудио и читайте тексты, а сервис подберет вам примеры в соответствии с выбранными фильтрами.\nНажмите Вперёд, чтобы продолжить.",
   rules: [

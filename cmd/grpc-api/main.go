@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"runtime"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	"runtime/debug"
 
 	env "github.com/Netflix/go-env"
 	tgrpc "github.com/boryashkin/language-api/internal/mediatext/grpc"
+	mongopkg "github.com/boryashkin/language-api/internal/mediatext/mongo"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/exp/slog"
@@ -22,19 +20,6 @@ import (
 )
 
 func main() {
-	a := `sdasdadssdfsdf
-	sdfsdf
-	sdf
-	dsf
-	ad`
-	b := "asdassdfda"
-	l := sync.Mutex{}
-	c := sync.NewCond(&l)
-	c.L.Lock()
-	atomic.CompareAndSwapInt64()
-	runtime.Caller()
-
-	fmt.Println(a, b)
 	opts := slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	}
@@ -67,15 +52,22 @@ func main() {
 			panic(err)
 		}
 	}()
+	mediaCol := client.Database("language-api").Collection("media")
+	mediaRepo := mongopkg.NewMediaRepository(mediaCol)
 
-	textServer := tgrpc.MyMediaTextServiceServer{}
+	mediaServer := tgrpc.NewMyMediaServiceServer(mediaRepo)
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.GrpcPort))
 	if err != nil {
 		logger.Error("failed to listen", slog.Any("err", err))
 	}
 
+	lessonCol := client.Database("language-api").Collection("lessons")
+	lessonRepo := mongopkg.NewLessonRepository(lessonCol)
+	lessonServer := tgrpc.NewMyLessonServiceServer(lessonRepo)
+
 	grpcServer := grpc.NewServer()
-	tgrpc.RegisterMediaTextServiceServer(grpcServer, &textServer)
+	tgrpc.RegisterMediaServiceServer(grpcServer, mediaServer)
+	tgrpc.RegisterLessonServiceServer(grpcServer, lessonServer)
 	reflection.Register(grpcServer)
 	err = grpcServer.Serve(lis)
 	if err != nil {

@@ -18,86 +18,172 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// MediaTextServiceClient is the client API for MediaTextService service.
+// MediaServiceClient is the client API for MediaService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MediaTextServiceClient interface {
-	Find(ctx context.Context, in *FindMediaTextRequest, opts ...grpc.CallOption) (*FindMediaTextReply, error)
+type MediaServiceClient interface {
+	FindMedia(ctx context.Context, in *FindMediaRequest, opts ...grpc.CallOption) (*FindMediaReply, error)
 }
 
-type mediaTextServiceClient struct {
+type mediaServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMediaTextServiceClient(cc grpc.ClientConnInterface) MediaTextServiceClient {
-	return &mediaTextServiceClient{cc}
+func NewMediaServiceClient(cc grpc.ClientConnInterface) MediaServiceClient {
+	return &mediaServiceClient{cc}
 }
 
-func (c *mediaTextServiceClient) Find(ctx context.Context, in *FindMediaTextRequest, opts ...grpc.CallOption) (*FindMediaTextReply, error) {
-	out := new(FindMediaTextReply)
-	err := c.cc.Invoke(ctx, "/MediaTextService/Find", in, out, opts...)
+func (c *mediaServiceClient) FindMedia(ctx context.Context, in *FindMediaRequest, opts ...grpc.CallOption) (*FindMediaReply, error) {
+	out := new(FindMediaReply)
+	err := c.cc.Invoke(ctx, "/MediaService/FindMedia", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MediaTextServiceServer is the server API for MediaTextService service.
-// All implementations must embed UnimplementedMediaTextServiceServer
+// MediaServiceServer is the server API for MediaService service.
+// All implementations must embed UnimplementedMediaServiceServer
 // for forward compatibility
-type MediaTextServiceServer interface {
-	Find(context.Context, *FindMediaTextRequest) (*FindMediaTextReply, error)
-	mustEmbedUnimplementedMediaTextServiceServer()
+type MediaServiceServer interface {
+	FindMedia(context.Context, *FindMediaRequest) (*FindMediaReply, error)
+	mustEmbedUnimplementedMediaServiceServer()
 }
 
-// UnimplementedMediaTextServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedMediaTextServiceServer struct {
+// UnimplementedMediaServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMediaServiceServer struct {
 }
 
-func (UnimplementedMediaTextServiceServer) Find(context.Context, *FindMediaTextRequest) (*FindMediaTextReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
+func (UnimplementedMediaServiceServer) FindMedia(context.Context, *FindMediaRequest) (*FindMediaReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMedia not implemented")
 }
-func (UnimplementedMediaTextServiceServer) mustEmbedUnimplementedMediaTextServiceServer() {}
+func (UnimplementedMediaServiceServer) mustEmbedUnimplementedMediaServiceServer() {}
 
-// UnsafeMediaTextServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MediaTextServiceServer will
+// UnsafeMediaServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MediaServiceServer will
 // result in compilation errors.
-type UnsafeMediaTextServiceServer interface {
-	mustEmbedUnimplementedMediaTextServiceServer()
+type UnsafeMediaServiceServer interface {
+	mustEmbedUnimplementedMediaServiceServer()
 }
 
-func RegisterMediaTextServiceServer(s grpc.ServiceRegistrar, srv MediaTextServiceServer) {
-	s.RegisterService(&MediaTextService_ServiceDesc, srv)
+func RegisterMediaServiceServer(s grpc.ServiceRegistrar, srv MediaServiceServer) {
+	s.RegisterService(&MediaService_ServiceDesc, srv)
 }
 
-func _MediaTextService_Find_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindMediaTextRequest)
+func _MediaService_FindMedia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindMediaRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MediaTextServiceServer).Find(ctx, in)
+		return srv.(MediaServiceServer).FindMedia(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/MediaTextService/Find",
+		FullMethod: "/MediaService/FindMedia",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MediaTextServiceServer).Find(ctx, req.(*FindMediaTextRequest))
+		return srv.(MediaServiceServer).FindMedia(ctx, req.(*FindMediaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// MediaTextService_ServiceDesc is the grpc.ServiceDesc for MediaTextService service.
+// MediaService_ServiceDesc is the grpc.ServiceDesc for MediaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MediaTextService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "MediaTextService",
-	HandlerType: (*MediaTextServiceServer)(nil),
+var MediaService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "MediaService",
+	HandlerType: (*MediaServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Find",
-			Handler:    _MediaTextService_Find_Handler,
+			MethodName: "FindMedia",
+			Handler:    _MediaService_FindMedia_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "server.proto",
+}
+
+// LessonServiceClient is the client API for LessonService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type LessonServiceClient interface {
+	CreateLesson(ctx context.Context, in *CreateLessonRequest, opts ...grpc.CallOption) (*CreateLessonReply, error)
+}
+
+type lessonServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewLessonServiceClient(cc grpc.ClientConnInterface) LessonServiceClient {
+	return &lessonServiceClient{cc}
+}
+
+func (c *lessonServiceClient) CreateLesson(ctx context.Context, in *CreateLessonRequest, opts ...grpc.CallOption) (*CreateLessonReply, error) {
+	out := new(CreateLessonReply)
+	err := c.cc.Invoke(ctx, "/LessonService/CreateLesson", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// LessonServiceServer is the server API for LessonService service.
+// All implementations must embed UnimplementedLessonServiceServer
+// for forward compatibility
+type LessonServiceServer interface {
+	CreateLesson(context.Context, *CreateLessonRequest) (*CreateLessonReply, error)
+	mustEmbedUnimplementedLessonServiceServer()
+}
+
+// UnimplementedLessonServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedLessonServiceServer struct {
+}
+
+func (UnimplementedLessonServiceServer) CreateLesson(context.Context, *CreateLessonRequest) (*CreateLessonReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLesson not implemented")
+}
+func (UnimplementedLessonServiceServer) mustEmbedUnimplementedLessonServiceServer() {}
+
+// UnsafeLessonServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to LessonServiceServer will
+// result in compilation errors.
+type UnsafeLessonServiceServer interface {
+	mustEmbedUnimplementedLessonServiceServer()
+}
+
+func RegisterLessonServiceServer(s grpc.ServiceRegistrar, srv LessonServiceServer) {
+	s.RegisterService(&LessonService_ServiceDesc, srv)
+}
+
+func _LessonService_CreateLesson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLessonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LessonServiceServer).CreateLesson(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/LessonService/CreateLesson",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LessonServiceServer).CreateLesson(ctx, req.(*CreateLessonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// LessonService_ServiceDesc is the grpc.ServiceDesc for LessonService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var LessonService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "LessonService",
+	HandlerType: (*LessonServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateLesson",
+			Handler:    _LessonService_CreateLesson_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
