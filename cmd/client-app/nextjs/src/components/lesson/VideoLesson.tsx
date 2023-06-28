@@ -34,6 +34,7 @@ export function VideoLesson(props: { text: Text; handleSpanClick: MouseEventHand
 
     return (
         <>
+        <h3 className="text-base font-semibold leading-6 text-gray-900 lg:text-2xl" id="modal-title">{props.text.title}</h3>
             <VideoContainer src={props.text.mediaUri} poster={props.text.posterUri} />
             <div id="text_content" className="text-center mt-3">
                 <div className="text-2xl text-black"><TextSpanList text={props.text} handleSpanClick={props.handleSpanClick} /></div>

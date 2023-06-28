@@ -2,6 +2,7 @@ import TextRule from "./TextRule";
 
 export default interface Text{
     id: string;
+    slug: string;
     posterUri: string;
     mediaUri: string;
     title: string;

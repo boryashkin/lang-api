@@ -8,9 +8,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Rule string
 type MediaType string
-type RulePlacement map[Rule][2]int
+
+func IsMediaType(t string) bool {
+	switch t {
+	case "video":
+		return true
+	case "text":
+		return true
+	}
+
+	return false
+}
 
 type Media struct {
 	ID           primitive.ObjectID `json:"id" bson:"_id,omitempty"`
@@ -25,29 +34,29 @@ type Media struct {
 	//Timing    []int              `json:"timing" bson:"timing"` // start stop points (do I need stop?)
 }
 
-type Text struct {
-	ID             primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Rules          []Rule             `json:"rules" bson:"rules"`                   // ["present perfect", …], maybe replace with constants from the code
-	RulePlacements []RulePlacement    `json:"rule_placement" bson:"rule_placement"` // on media.text
-	//Media          Media              `json:"media" bson:"media"` // join for now
-	MediaID   primitive.ObjectID `json:"media_id" bson:"media_id"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-}
-
 type MediaFilter struct {
-	ID   string
+	PaginationFilter
+	IDs  []string
 	Text string
 }
 
 func (m *MediaFilter) MongoFilter() bson.M {
 	f := bson.M{}
-	if m.ID != "" {
-		id, _ := primitive.ObjectIDFromHex(m.ID)
-		f["_id"] = id
+	if len(m.IDs) != 0 {
+		ids := make([]primitive.ObjectID, len(m.IDs))
+		for i, v := range m.IDs {
+			id, err := primitive.ObjectIDFromHex(v)
+			if err != nil {
+				continue
+			}
+			ids[i] = id
+		}
+		f["_id"] = bson.M{"$in": ids}
 	}
 	if m.Text != "" {
 		f["text"] = bson.M{"$regex": m.Text, "$options": "im"}
 	}
+
 	return f
 }
 
@@ -55,8 +64,4 @@ type MediaRepository interface {
 	Get(ctx context.Context, id string) (*Media, error)
 	Find(ctx context.Context, filter *MediaFilter) ([]*Media, error)
 	Create(ctx context.Context, m *Media) error
-}
-type TextRepository interface {
-	Get(id string) (*Text, error)
-	Create(t *Text) error
 }

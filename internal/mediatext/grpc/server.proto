@@ -5,17 +5,94 @@ option go_package = "github.com/boryashkin/language-api/internal/mediatext/grpc"
 
 service MediaService {
     rpc FindMedia (FindMediaRequest) returns (FindMediaReply) {}
+    rpc CreateMedia (CreateMediaRequest) returns (CreateMediaReply) {}
 }
 service LessonService {
     rpc CreateLesson (CreateLessonRequest) returns (CreateLessonReply) {}
+    rpc StoreElement (StoreLessonElementRequest) returns (StoreLessonElementReply) {}
+    rpc FindElements (FindLessonElementRequest) returns (FindElementsReply) {}
+    rpc FindLessons (FindLessonsRequest) returns (FindLessonsReply) {}
 }
 
 // Keep in sync with /cmd/clientapp/nextjs/src/proto
+
+message CreateMediaRequest {
+    string text = 1;
+    string type = 2;
+    string original_lang = 3;
+}
+message CreateMediaReply {
+    Media result = 1;
+}
+
+message Pagination {
+    int64 limit = 1;
+    int64 offset = 2;
+}
+
+message Lesson {
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+    string owner_id = 4;
+    google.protobuf.Timestamp created_at = 5;
+    string description = 6;
+}
+
+message FindLessonsRequest {
+    string id = 1;
+    string slug = 2;
+    Pagination pagination = 3;
+}
+message FindLessonsReply {
+    repeated Lesson items = 1;
+}
+
+message FindLessonElementRequest {
+    string lesson_id = 1;
+    Pagination pagination = 2;
+}
+message LessonElement {
+    string id = 1;
+    string lesson_id = 2;
+    string name = 3;
+    string slug = 4;
+    string media_id = 5;
+    repeated ElementRule rules = 6;
+    int32 order = 7;
+    Media media = 8; // readonly
+}
+message FindElementsReply {
+    repeated LessonElement items = 1;
+}
+
+message ElementRule {
+    int32 start = 1;
+    int32 stop = 2;
+    string name = 3;
+    string note = 4;
+    string color = 5;
+}
+// see LessonElement
+message StoreLessonElementRequest {
+    string id = 1; // optional; if present - update, if absent - create
+    string lesson_id = 2;
+    string name = 3;
+    string slug = 4;
+    string media_id = 5;
+    repeated ElementRule rules = 6;
+
+    int32 order = 7;
+}
+message StoreLessonElementReply {
+    string id = 1;
+}
 
 message CreateLessonRequest {
     string name = 1;
     string slug = 2;
     string owner_id = 3;
+    string description = 4;
 }
 message CreateLessonReply {
     string id = 1;
@@ -23,12 +100,14 @@ message CreateLessonReply {
     string slug = 3;
     string owner_id = 4;
     google.protobuf.Timestamp created_at = 5;
+    string description = 6;
 }
 
 message FindMediaRequest {
     string id = 1;
     string text = 2;
     string type = 3;
+    Pagination pagination = 6;
 }
 message FindMediaReply {
     repeated Media media = 1;

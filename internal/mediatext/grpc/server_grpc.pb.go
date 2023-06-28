@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MediaServiceClient interface {
 	FindMedia(ctx context.Context, in *FindMediaRequest, opts ...grpc.CallOption) (*FindMediaReply, error)
+	CreateMedia(ctx context.Context, in *CreateMediaRequest, opts ...grpc.CallOption) (*CreateMediaReply, error)
 }
 
 type mediaServiceClient struct {
@@ -42,11 +43,21 @@ func (c *mediaServiceClient) FindMedia(ctx context.Context, in *FindMediaRequest
 	return out, nil
 }
 
+func (c *mediaServiceClient) CreateMedia(ctx context.Context, in *CreateMediaRequest, opts ...grpc.CallOption) (*CreateMediaReply, error) {
+	out := new(CreateMediaReply)
+	err := c.cc.Invoke(ctx, "/MediaService/CreateMedia", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MediaServiceServer is the server API for MediaService service.
 // All implementations must embed UnimplementedMediaServiceServer
 // for forward compatibility
 type MediaServiceServer interface {
 	FindMedia(context.Context, *FindMediaRequest) (*FindMediaReply, error)
+	CreateMedia(context.Context, *CreateMediaRequest) (*CreateMediaReply, error)
 	mustEmbedUnimplementedMediaServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedMediaServiceServer struct {
 
 func (UnimplementedMediaServiceServer) FindMedia(context.Context, *FindMediaRequest) (*FindMediaReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindMedia not implemented")
+}
+func (UnimplementedMediaServiceServer) CreateMedia(context.Context, *CreateMediaRequest) (*CreateMediaReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMedia not implemented")
 }
 func (UnimplementedMediaServiceServer) mustEmbedUnimplementedMediaServiceServer() {}
 
@@ -88,6 +102,24 @@ func _MediaService_FindMedia_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MediaService_CreateMedia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServiceServer).CreateMedia(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/MediaService/CreateMedia",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServiceServer).CreateMedia(ctx, req.(*CreateMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MediaService_ServiceDesc is the grpc.ServiceDesc for MediaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -99,6 +131,10 @@ var MediaService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "FindMedia",
 			Handler:    _MediaService_FindMedia_Handler,
 		},
+		{
+			MethodName: "CreateMedia",
+			Handler:    _MediaService_CreateMedia_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "server.proto",
@@ -109,6 +145,9 @@ var MediaService_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LessonServiceClient interface {
 	CreateLesson(ctx context.Context, in *CreateLessonRequest, opts ...grpc.CallOption) (*CreateLessonReply, error)
+	StoreElement(ctx context.Context, in *StoreLessonElementRequest, opts ...grpc.CallOption) (*StoreLessonElementReply, error)
+	FindElements(ctx context.Context, in *FindLessonElementRequest, opts ...grpc.CallOption) (*FindElementsReply, error)
+	FindLessons(ctx context.Context, in *FindLessonsRequest, opts ...grpc.CallOption) (*FindLessonsReply, error)
 }
 
 type lessonServiceClient struct {
@@ -128,11 +167,41 @@ func (c *lessonServiceClient) CreateLesson(ctx context.Context, in *CreateLesson
 	return out, nil
 }
 
+func (c *lessonServiceClient) StoreElement(ctx context.Context, in *StoreLessonElementRequest, opts ...grpc.CallOption) (*StoreLessonElementReply, error) {
+	out := new(StoreLessonElementReply)
+	err := c.cc.Invoke(ctx, "/LessonService/StoreElement", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *lessonServiceClient) FindElements(ctx context.Context, in *FindLessonElementRequest, opts ...grpc.CallOption) (*FindElementsReply, error) {
+	out := new(FindElementsReply)
+	err := c.cc.Invoke(ctx, "/LessonService/FindElements", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *lessonServiceClient) FindLessons(ctx context.Context, in *FindLessonsRequest, opts ...grpc.CallOption) (*FindLessonsReply, error) {
+	out := new(FindLessonsReply)
+	err := c.cc.Invoke(ctx, "/LessonService/FindLessons", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LessonServiceServer is the server API for LessonService service.
 // All implementations must embed UnimplementedLessonServiceServer
 // for forward compatibility
 type LessonServiceServer interface {
 	CreateLesson(context.Context, *CreateLessonRequest) (*CreateLessonReply, error)
+	StoreElement(context.Context, *StoreLessonElementRequest) (*StoreLessonElementReply, error)
+	FindElements(context.Context, *FindLessonElementRequest) (*FindElementsReply, error)
+	FindLessons(context.Context, *FindLessonsRequest) (*FindLessonsReply, error)
 	mustEmbedUnimplementedLessonServiceServer()
 }
 
@@ -142,6 +211,15 @@ type UnimplementedLessonServiceServer struct {
 
 func (UnimplementedLessonServiceServer) CreateLesson(context.Context, *CreateLessonRequest) (*CreateLessonReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateLesson not implemented")
+}
+func (UnimplementedLessonServiceServer) StoreElement(context.Context, *StoreLessonElementRequest) (*StoreLessonElementReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StoreElement not implemented")
+}
+func (UnimplementedLessonServiceServer) FindElements(context.Context, *FindLessonElementRequest) (*FindElementsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindElements not implemented")
+}
+func (UnimplementedLessonServiceServer) FindLessons(context.Context, *FindLessonsRequest) (*FindLessonsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindLessons not implemented")
 }
 func (UnimplementedLessonServiceServer) mustEmbedUnimplementedLessonServiceServer() {}
 
@@ -174,6 +252,60 @@ func _LessonService_CreateLesson_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LessonService_StoreElement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StoreLessonElementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LessonServiceServer).StoreElement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/LessonService/StoreElement",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LessonServiceServer).StoreElement(ctx, req.(*StoreLessonElementRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LessonService_FindElements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindLessonElementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LessonServiceServer).FindElements(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/LessonService/FindElements",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LessonServiceServer).FindElements(ctx, req.(*FindLessonElementRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LessonService_FindLessons_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindLessonsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LessonServiceServer).FindLessons(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/LessonService/FindLessons",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LessonServiceServer).FindLessons(ctx, req.(*FindLessonsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LessonService_ServiceDesc is the grpc.ServiceDesc for LessonService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -184,6 +316,18 @@ var LessonService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateLesson",
 			Handler:    _LessonService_CreateLesson_Handler,
+		},
+		{
+			MethodName: "StoreElement",
+			Handler:    _LessonService_StoreElement_Handler,
+		},
+		{
+			MethodName: "FindElements",
+			Handler:    _LessonService_FindElements_Handler,
+		},
+		{
+			MethodName: "FindLessons",
+			Handler:    _LessonService_FindLessons_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

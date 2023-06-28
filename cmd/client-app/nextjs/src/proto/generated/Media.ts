@@ -1,4 +1,4 @@
-// Original file: ../mediatext.grpc
+// Original file: ../mediatext.proto
 
 import type { Timestamp as _google_protobuf_Timestamp, Timestamp__Output as _google_protobuf_Timestamp__Output } from './google/protobuf/Timestamp';
 

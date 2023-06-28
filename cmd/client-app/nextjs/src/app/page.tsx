@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 const defaultText: Text = {
   id: "1",
+  slug: "1",
   posterUri: "",
   mediaUri: "",
   title: "Сервис для изучения языков",

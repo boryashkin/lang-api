@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/boryashkin/language-api/internal/mediatext/entity"
 )
@@ -37,7 +38,12 @@ func (s *MediaRepository) Get(ctx context.Context, id string) (*entity.Media, er
 }
 
 func (s *MediaRepository) Find(ctx context.Context, f *entity.MediaFilter) (r []*entity.Media, err error) {
-	cur, err := s.collection.Find(context.Background(), f.MongoFilter())
+	opts := []*options.FindOptions{}
+	page := f.MongoPagination()
+	if page != nil {
+		opts = append(opts, f.MongoPagination())
+	}
+	cur, err := s.collection.Find(context.Background(), f.MongoFilter(), opts...)
 	if err != nil {
 		return nil, err
 	}

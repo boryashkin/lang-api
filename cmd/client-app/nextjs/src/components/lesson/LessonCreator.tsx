@@ -1,21 +1,27 @@
 'use client';
 
 import { Media } from "@/proto/generated/Media";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, FormEvent, useEffect, useState } from "react";
 import Text, { TextType } from "@/interfaces/Text";
 import { LessonHolder } from "./LessonHolder";
 import { getNumberFromFromValue, getStringFromFromValue } from "@/helpers/FormHelpers";
+import { StoreLessonElementRequest } from "@/proto/generated/StoreLessonElementRequest";
+import slugify from "@sindresorhus/slugify";
+import { HydrateTextWithRules } from "@/helpers/LessonHelpers";
+import { ElementRule } from "@/proto/generated/ElementRule";
 
-interface SelectedItem {
+interface SelectedItem extends ElementRule {
     start: number
     stop: number
     color: string
     note: string
+    name: string
 }
 
 const emptySelection: SelectedItem[] = [];
 const emptyText: Text = {
     id: "",
+    slug: "",
     posterUri: "",
     mediaUri: "",
     title: "",
@@ -31,9 +37,10 @@ const createTextFromProps = (item: Media | undefined): Text => {
 
     let result = {
         id: item.id ?? "",
+        slug: "",
         posterUri: item.uriThumbnail ?? "",
         mediaUri: item.uri ?? "",
-        title: "preview",
+        title: "Title",
         text: item.text ?? "",
         rules: [],
         type: (item.type ?? TextType.Text) as TextType
@@ -42,70 +49,13 @@ const createTextFromProps = (item: Media | undefined): Text => {
 
     return result
 }
-const createTextFromSelected = (media: Media | undefined, selected: SelectedItem[]): Text => {
+const createTextFromSelected = (media: Media | undefined, elName: string, selected: SelectedItem[]): Text => {
     let item = createTextFromProps(media)
+    item.title = elName
     if (selected.length == 0) {
         return item
     }
-    let originalText = media?.text ?? ""
-    if (originalText.length == 0) {
-        console.error("empty original text", media?.id)
-        return item
-    }
-
-    let sortedSelected = selected.sort((a: SelectedItem, b: SelectedItem): number => { return a.start - b.start })
-    console.log(selected, sortedSelected)
-
-
-    let selectedI = 0
-    let state = 0 // 0 - none, 1 - empty, 2 - selected
-    let curStart = 0
-    let curEnd = 0
-    let addRule = (start: number, stop: number, ruleName: string, ruleDescription: string, color: string) => {
-        item.rules.push({
-            ruleName: ruleName,
-            ruleDescription: ruleDescription,
-            text: originalText.substring(start, stop + 1),
-            color: color
-        })
-    }
-    for (let i = 0; i < originalText.length; i++) {
-        let selectedItem = sortedSelected[selectedI]
-        console.log("selectedI", selectedI)
-
-        if (state == 0) { //none
-            curStart = i
-            if (selectedItem && selectedItem.start == i) {
-                state = 2
-                continue
-            } else {
-                state = 1
-            }
-            continue
-
-        } else if (state == 1) { // empty
-            if (selectedItem && selectedItem.start == i) {
-                curEnd = i - 1
-                addRule(curStart, curEnd, "", "", "")
-                curStart = i
-                state = 2
-            } else if (i == originalText.length - 1) {
-                curEnd = i
-                addRule(curStart, curEnd, "", "", "")
-            }
-            continue
-        } else { // selected
-            if (selectedItem && i == selectedItem.stop) {
-                curEnd = i
-                addRule(curStart, curEnd, "todo1", selectedItem.note, selectedItem.color)
-                selectedI++
-                state = 0
-            }
-            continue
-        }
-    }
-
-    return item
+    return HydrateTextWithRules(item, selected)
 }
 
 function RuleForm(props: { 
@@ -154,17 +104,31 @@ function RuleForm(props: {
                 <option value="rose" className="bg-rose-200">rose</option>
             </select>
             <br />
+            Title: <input
+                type="text"
+                name="title"
+                className="mx-2 px-2 border rounded-md border-gray-200" />
             Text on a note:
             <textarea name="note" className="mx-2 px-2 border rounded-md border-gray-200"></textarea>
         </form>
     )
 }
 
-async function addElementToALesson(lessonId: string, item: Media, selected: SelectedItem[]) {
+async function addElementToALesson(lessonId: string, name: string, item: Media, selected: SelectedItem[]) {
     console.log("addElementToALesson", lessonId, item, selected)
-    return
-    const JSONdata = JSON.stringify({})
-    const endpoint = '/api/lesson/' + lessonId
+    let randSuffix = Math.floor(Math.random() * 10000000)
+    let slug = slugify(name.substring(0, 16)) + '-' + randSuffix
+    let req: StoreLessonElementRequest = {
+        lessonId: lessonId,
+        name: name,
+        slug: slug,
+        mediaId: item.id,
+        rules: selected,
+        order: 1,
+    }
+    
+    const JSONdata = JSON.stringify(req)
+    const endpoint = '/api/lessons/' + lessonId + '/elements'
     const options = {
       method: 'POST',
       headers: {
@@ -176,11 +140,12 @@ async function addElementToALesson(lessonId: string, item: Media, selected: Sele
     const response = await fetch(endpoint, options)
 
     if (!response.ok) {
-        //setFormError("Error")
+        console.error("addElementToALesson", response.status)
         return
     }
-    
-    //const result : CreateLessonReply = await response.json()
+
+    let res = response.json()
+    console.log("addElementToALesson", response.status)
 }
 
 export default function LessonCreator(props: { lessonId: string, item: Media | undefined, closingHandler: () => void }) {
@@ -188,6 +153,10 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
         return <></>
     }
     const [selected, setSelected] = useState(emptySelection);
+    const [elName, setElName] = useState("");
+    const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setElName(e.target.value)
+    }
     const handleSelectedTrigger = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         let form: HTMLFormElement = e.currentTarget
@@ -202,6 +171,7 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
             stop: getNumberFromFromValue(data.get("stop")),
             color: getStringFromFromValue(data.get("color")),
             note: getStringFromFromValue(data.get("note")),
+            name: getStringFromFromValue(data.get("title")),
         }
     
         setSelected((state) => {
@@ -214,9 +184,12 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
     }
     const handleSubmitTrigger = () => {
         setSelected((state) => {
-            console.log("before submit", state)
+            console.log("before submit", state, "elName", elName)
             if (props.item) {
-                addElementToALesson(props.lessonId, props.item, state)
+                addElementToALesson(props.lessonId, elName, props.item, state).
+                then(() => {
+                    window.location.reload()
+                })
             }
             return state
         })
@@ -227,14 +200,13 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
     ]);
 
     useEffect(() => {
-        console.log("useEffect selected")
+        console.log("useEffect selected", elName)
         // do not mutate selected
-        setCurrentText(createTextFromSelected(props.item, [...selected]))
-    }, [selected])
+        setCurrentText(createTextFromSelected(props.item, elName, [...selected]))
+    }, [selected, elName])
 
 
     const pushNewRuleForm = (key: number) => {
-        console.log("PUSHHH")
         ruleForms.push(
             <RuleForm key={key} index={key} item={props.item} handleSelectedTrigger={handleSelectedTrigger} />
         )
@@ -265,9 +237,11 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
                         </div>
 
                         <div className="p-6 space-y-6">
+                            <input onChange={handleTitleChange} name="lesson-element-name" id="lesson-element-name" className="w-full" placeholder="Enter a title if you need..."/>
                             <h3 className="text-lg">{props.item.text}</h3>
                         </div>
 
+                        <span className="mx-6 text-sm">Set values to highligh the text:</span>
                         <div className="p-6 space-y-6 bg-gray-50">
                             {ruleForms}
                         </div>
@@ -275,11 +249,13 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
                         <div className="p-6 space-y-6">
                             <button onClick={() => {pushNewRuleForm(ruleForms.length)}} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">+</button>
                             <button onClick={() => popNewRuleForm()} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">-</button>
+                            <span className="mx-6 text-sm">to add or remove hilight forms</span>
                         </div>
 
                         <div className="p-6 space-y-6 relative">
-                            Preview:
-                            <LessonHolder text={currentText} />
+                            <span className="text-lg">Preview:</span>
+                            <i>change the values above and see the result below</i>
+                            <LessonHolder text={currentText} /> 
                         </div>
 
 

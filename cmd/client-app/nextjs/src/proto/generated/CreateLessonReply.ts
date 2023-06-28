@@ -1,4 +1,4 @@
-// Original file: ../mediatext.grpc
+// Original file: ../mediatext.proto
 
 import type { Timestamp as _google_protobuf_Timestamp, Timestamp__Output as _google_protobuf_Timestamp__Output } from './google/protobuf/Timestamp';
 
@@ -8,6 +8,7 @@ export interface CreateLessonReply {
   'slug'?: (string);
   'ownerId'?: (string);
   'createdAt'?: (_google_protobuf_Timestamp | null);
+  'description'?: (string);
 }
 
 export interface CreateLessonReply__Output {
@@ -16,4 +17,5 @@ export interface CreateLessonReply__Output {
   'slug': (string);
   'ownerId': (string);
   'createdAt': (_google_protobuf_Timestamp__Output | null);
+  'description': (string);
 }

@@ -66,3 +66,18 @@ func (s *LessonRepository) Create(ctx context.Context, m *entity.Lesson) error {
 
 	return err
 }
+
+func (s *LessonRepository) Find(ctx context.Context, f *entity.LessonFilter) (r []*entity.Lesson, err error) {
+	opts := []*options.FindOptions{}
+	page := f.MongoPagination()
+	if page != nil {
+		opts = append(opts, f.MongoPagination())
+	}
+	cur, err := s.collection.Find(context.Background(), f.MongoFilter(), opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cur.All(ctx, &r)
+
+	return r, err
+}

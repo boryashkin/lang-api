@@ -1,5 +1,9 @@
+import { getServerSession } from 'next-auth';
 import './globals.css'
 import { Inter } from 'next/font/google'
+import { authOptions, getUserFromSession } from '@/lib/auth/authoptions';
+import { LoginButton } from '@/components/auth/LoginButton';
+import { AdapterSession } from 'next-auth/adapters';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,11 +32,13 @@ function LanguageSelector() {
   );
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await getUserFromSession(authOptions);
+
   return (
     <html lang="en">
       <head>
@@ -44,7 +50,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className + " text-gray-900"}>
         <div className="bg-white min-h-screen">
           <header id="main-header" className="absolute inset-x-0 top-0 z-10">
             <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
@@ -55,6 +61,9 @@ export default function RootLayout({
                 </a>
               </div>
               <LanguageSelector />
+              { user ? 
+              <a href="/studio/create-lesson" className="mx-4 relative cursor-default rounded-md bg-white py-1.5 pl-3 pr-3 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">Create a lesson</a>
+              : <LoginButton />}
 
               <div className="lg:flex lg:gap-x-12">
                 <a href="https://t.me/borischan" className="text-sm font-semibold leading-6 text-gray-900">Blog</a>

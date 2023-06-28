@@ -55,7 +55,7 @@ func main() {
 	mediaCol := client.Database("language-api").Collection("media")
 	mediaRepo := mongopkg.NewMediaRepository(mediaCol)
 
-	mediaServer := tgrpc.NewMyMediaServiceServer(mediaRepo)
+	mediaServer := tgrpc.NewMyMediaServiceServer(mediaRepo, config.MediaPrefixCdn)
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.GrpcPort))
 	if err != nil {
 		logger.Error("failed to listen", slog.Any("err", err))
@@ -63,7 +63,9 @@ func main() {
 
 	lessonCol := client.Database("language-api").Collection("lessons")
 	lessonRepo := mongopkg.NewLessonRepository(lessonCol)
-	lessonServer := tgrpc.NewMyLessonServiceServer(lessonRepo)
+	lessonElCol := client.Database("language-api").Collection("lesson_elements")
+	lessonElRepo := mongopkg.NewLessonElementRepository(lessonElCol)
+	lessonServer := tgrpc.NewMyLessonServiceServer(lessonRepo, lessonElRepo, mediaRepo, config.MediaPrefixCdn)
 
 	grpcServer := grpc.NewServer()
 	tgrpc.RegisterMediaServiceServer(grpcServer, mediaServer)

@@ -1,4 +1,4 @@
-// Original file: ../mediatext.grpc
+// Original file: ../mediatext.proto
 
 import type { Media as _Media, Media__Output as _Media__Output } from './Media';
 

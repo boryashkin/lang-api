@@ -8,6 +8,7 @@ import NoteDescription from "../note/NoteDescription";
 import { Lesson } from "./Lesson";
 
 const EMPTY_NODE_DESCRIPTION: NoteDescriptionContent = { title: "", text: "" }
+const URL_LESSON_SLUG_SLASH_COUNT = 5; 
 
 export function LessonHolder(props: { text: Text }) {
     const [noteText, setNoteText] = useState(EMPTY_NODE_DESCRIPTION);
@@ -36,12 +37,19 @@ export default function LessonListContainer(props: { currentText: Text; tmpVideo
             tmpIdx = -1
         }
         setCurrentTextL(props.tmpVideos[tmpIdx + 1])
-        window.history.pushState({}, "", props.tmpVideos[tmpIdx + 1].id)
+        
+        console.log("push state from", window.location.href, window.location.href.split("/"))
+        let elSlug = props.tmpVideos[tmpIdx + 1].slug
+        window.history.pushState(
+            {}, 
+            "", 
+            window.location.href.split("/").length == URL_LESSON_SLUG_SLASH_COUNT ? window.location.href.concat("/", elSlug) : elSlug
+        )
     }
 
 
     return (
-        <div id="lesson_container" className="mx-auto container">
+        <div id="lesson-container" className="mx-auto container">
             <div className="relative sm:rounded-lg bg-white text-left shadow-xl transition-all m-auto">
                 <LessonHolder text={currentTextL} />
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">

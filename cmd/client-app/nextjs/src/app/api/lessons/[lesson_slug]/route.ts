@@ -5,14 +5,14 @@ import { NextResponse } from 'next/server';
  
 const prefix = (process.env.ASSET_PREFIX_CDN ?? "").replace(/\/$/, '')
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
-  
+export async function GET(request: Request, { params }: { params: { lesson_slug: string } }) {
+  // todo: rename slug to id; for slug search use /lessons
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   let lesson: Lesson|undefined
 
   for (let i = 0; i < lessons.length; i++) {
-    if (lessons[i].slug == params.slug) {
+    if (lessons[i].slug == params.lesson_slug) {
       lesson = lessons[i]
     }
   }
@@ -25,6 +25,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
 
 const videos : Text[] = [{
     id: "2",
+    slug: "2",
     posterUri: "",
     mediaUri: "",
     title: "Правила будут выделены цветами",
@@ -37,6 +38,7 @@ const videos : Text[] = [{
   },
   {
     id: "3",
+    slug: "3",
     posterUri: prefix + "/media/tbbt_1.jpeg",
     mediaUri: prefix + "/media/tbbt_1.mp4",
     title: "",
@@ -50,6 +52,7 @@ const videos : Text[] = [{
   },
   {
     id: "4",
+    slug: "4",
     posterUri: prefix + "/media/tbbt_1.jpeg",
     mediaUri: prefix + "/media/tbbt_3.mp4",
     title: "",
@@ -63,6 +66,7 @@ const videos : Text[] = [{
   },
   {
     id: "5",
+    slug: "5",
     posterUri: prefix + "/media/tbbt_1.jpeg",
     mediaUri: prefix + "/media/tbbt_4.mp4",
     title: "",
@@ -79,6 +83,7 @@ const videos : Text[] = [{
   },
   {
     id: "6",
+    slug: "6",
     posterUri: prefix + "/media/tbbt_1.jpeg",
     mediaUri: prefix + "/media/tbbt_5.mp4",
     title: "",
@@ -92,6 +97,7 @@ const videos : Text[] = [{
   },
   {
     id: "7",
+    slug: "7",
     posterUri: "",
     mediaUri: "",
     title: "Вы посмотрели демо",
@@ -107,6 +113,7 @@ const lessons : Lesson[] = [
   {
     slug: "intro",
     name: "Demo lesson",
+    description: "Demo description",
     language: "en",
     texts: videos,
   }
