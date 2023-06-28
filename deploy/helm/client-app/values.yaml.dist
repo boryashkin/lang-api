@@ -10,7 +10,15 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   #tag: "0.2.0"
 
-envFrom: false
+envFrom: 
+  NODE_ENV: "production"
+  ASSET_PREFIX_CDN: "https://cdn.cdn/"
+  MONGODB_URI: "mongodb://localhost"
+  SMTP_USER: "langapi@borisd.ru"
+  SMTP_PASS: "somepass"
+  MEDIATEXT_GRPC_URI: "grpc-api:3001"
+  NEXTAUTH_URL: "https://langapi.borisd.ru"
+  NEXTAUTH_SECRET: "somestring"
 # if enabled, a cfg "{{ $fullName }}-config" should contain NODE_ENV=production for example
 
 imagePullSecrets: [

@@ -84,7 +84,7 @@ export default function MediaListWithCreator(props: { lesson: Lesson, queriedIte
                 <div className="bg-white px-4 pt-3">
                     {props.lessonElements.length > 0 ? "Текущие элементы урока" : "Найдите и добавьте элемент в урок"}
                     <div className={props.lessonElements.length > 0 ? "" : "hidden"}>
-                        <a className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" href={"/lesson/" + props.lesson.slug} target='_blank'>Предпросмотр урока</a>
+                        <a className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" href={"/lesson/" + props.lesson.slug} target='_blank'>Посмотреть урок</a><i className="text-sm text-slate-300">Продолжайте добавлять элементы дальше, если нужно</i>
                     </div>
                 </div>
                 <div className="bg-white pb-4 pt-0 sm:pb-4 flex flex-wrap">

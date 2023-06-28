@@ -24,6 +24,8 @@ COPY . .
 
 ARG ASSET_PREFIX_CDN
 ENV ASSET_PREFIX_CDN ${ASSET_PREFIX_CDN}
+ENV MONGODB_URI mongodb://localhost
+ENV MEDIATEXT_GRPC_URI localhost
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry

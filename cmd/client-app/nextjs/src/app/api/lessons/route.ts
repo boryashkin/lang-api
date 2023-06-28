@@ -37,7 +37,7 @@ export async function POST(request: Request) {
         })
     console.log("after resp", createResponse)
     if (!createResponse && grpcErr && grpcErr.code == 6) {
-        return NextResponse.json({ "error": "Try another slug" }, { status: 400 })
+        return NextResponse.json({ "error": "Try another slug (URL)" }, { status: 400 })
     } else if (!createResponse) {
         return NextResponse.json({ "error": "Internal server error" }, { status: 500 })
     }

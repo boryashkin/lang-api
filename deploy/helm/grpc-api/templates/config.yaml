@@ -1,0 +1,13 @@
+{{- if .Values.envFrom -}}
+{{- $fullName := include "grpc-api.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grpc-api.fullname" . }}-config
+  labels:
+    {{- include "grpc-api.labels" . | nindent 4 }}
+data:
+  {{- with .Values.envFrom }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { authOptions, getUserFromSession } from '@/lib/auth/authoptions';
 import { LoginButton } from '@/components/auth/LoginButton';
 import { AdapterSession } from 'next-auth/adapters';
+import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -99,6 +100,10 @@ export default async function RootLayout({
                   <a className="text-black text-sm" href="https://www.flaticon.com/free-icons/translate" title="translate icons">Translate icons created by RA_IC0N21 - Flaticon</a>
                   <a className="text-black text-sm" href="https://www.flaticon.com/free-icons/language" title="language icons">Language icons created by Freepik - Flaticon</a>
                   <a className="text-black text-sm" href="https://www.flaticon.com/free-icons/communications" title="communications icons">Communications icons created by Freepik - Flaticon</a>
+                  <br />
+                  <br />
+                  <br />
+                  <Link href="/docs/privacy">Политика конфиденциальности</Link>
                 </div>
               </div>
             </div>

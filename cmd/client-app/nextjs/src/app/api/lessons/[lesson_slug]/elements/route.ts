@@ -1,4 +1,3 @@
-
 import { LessonClient } from '@/clients/Mediatext';
 import { authorize } from '@/errors/http/authorize';
 import { authOptions, getUserFromSession } from '@/lib/auth/authoptions';
@@ -6,7 +5,7 @@ import { StoreLessonElementRequest } from '@/proto/generated/StoreLessonElementR
 import * as grpc from '@grpc/grpc-js';
 import { NextResponse } from 'next/server';
 
-let client = new LessonClient(process.env.MEDIATEXT_GRPC_URI ?? "", grpc.credentials.createInsecure())
+const client = new LessonClient(process.env.MEDIATEXT_GRPC_URI ?? "", grpc.credentials.createInsecure())
 
 export async function POST(request: Request) {
   const user = await getUserFromSession(authOptions);

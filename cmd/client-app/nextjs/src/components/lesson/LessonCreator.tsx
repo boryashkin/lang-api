@@ -149,9 +149,6 @@ async function addElementToALesson(lessonId: string, name: string, item: Media, 
 }
 
 export default function LessonCreator(props: { lessonId: string, item: Media | undefined, closingHandler: () => void }) {
-    if (!props.item) {
-        return <></>
-    }
     const [selected, setSelected] = useState(emptySelection);
     const [elName, setElName] = useState("");
     const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -217,6 +214,10 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
         selected.pop()
         setRuleForms([...ruleForms])
         setSelected([...selected])
+    }
+
+    if (!props.item) {
+        return <></>
     }
 
     return (

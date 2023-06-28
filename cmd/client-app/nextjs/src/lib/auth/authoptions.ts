@@ -1,15 +1,15 @@
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "../mongodb/mongodb";
 import Email from "next-auth/providers/email";
 import { AuthOptions, CallbacksOptions, getServerSession } from "next-auth";
 import { Adapter, AdapterUser } from "next-auth/adapters";
+import type { Adapter as CAdapter } from "@auth/core/adapters"
+
 
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
 // MongoDBAdapter implements Adapter from "@auth/core/adapters"
-const adapter: Adapter = MongoDBAdapter(clientPromise)
-
-//adapter.createUser?({email: "demo@borisd.ru"})
+const adapter: Adapter|CAdapter = MongoDBAdapter(clientPromise)
 
 // they are being merged with the default inside NextAuth
 const cbcs: CallbacksOptions = {
@@ -18,11 +18,23 @@ const cbcs: CallbacksOptions = {
         
         return params.session
     },
+    signIn() {
+        return true
+      },
+      redirect({ url, baseUrl }) {
+        if (url.startsWith("/")) return `${baseUrl}${url}`
+        else if (new URL(url).origin === baseUrl) return url
+        return baseUrl
+      },
+      jwt({ token }) {
+        return token
+      },
 }
 
 export const authOptions: AuthOptions = {
     callbacks: cbcs,
     adapter: adapter,
+    //secret
     // Configure one or more authentication providers
     providers: [
         Email({

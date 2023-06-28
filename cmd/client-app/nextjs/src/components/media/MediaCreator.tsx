@@ -36,9 +36,6 @@ const addTextMedia = async (text: string) : Promise<Media|undefined> => {
 }
 
 export default function MediaCreator(props: { show: boolean, createdHandler: (item: Media) => void, closingHandler: () => void }) {
-    if (!props.show) {
-        return <></>
-    }
     const [media, setMedia] = useState(emptyMedia);
     
     const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -67,7 +64,10 @@ export default function MediaCreator(props: { show: boolean, createdHandler: (it
         })
     }
     
-
+    if (!props.show) {
+        return <></>
+    }
+    
     return (
         <div className="mx-auto container">
 

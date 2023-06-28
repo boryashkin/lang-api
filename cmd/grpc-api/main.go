@@ -16,7 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -56,7 +55,7 @@ func main() {
 	mediaRepo := mongopkg.NewMediaRepository(mediaCol)
 
 	mediaServer := tgrpc.NewMyMediaServiceServer(mediaRepo, config.MediaPrefixCdn)
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.GrpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", config.GrpcHost, config.GrpcPort))
 	if err != nil {
 		logger.Error("failed to listen", slog.Any("err", err))
 	}
@@ -70,7 +69,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	tgrpc.RegisterMediaServiceServer(grpcServer, mediaServer)
 	tgrpc.RegisterLessonServiceServer(grpcServer, lessonServer)
-	reflection.Register(grpcServer)
+	//reflection.Register(grpcServer)
 	err = grpcServer.Serve(lis)
 	if err != nil {
 		logger.Error("error serving textServer", slog.Any("err", err))
