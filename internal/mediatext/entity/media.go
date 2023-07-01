@@ -38,6 +38,7 @@ type MediaFilter struct {
 	PaginationFilter
 	IDs  []string
 	Text string
+	Type string
 }
 
 func (m *MediaFilter) MongoFilter() bson.M {
@@ -55,6 +56,9 @@ func (m *MediaFilter) MongoFilter() bson.M {
 	}
 	if m.Text != "" {
 		f["text"] = bson.M{"$regex": m.Text, "$options": "im"}
+	}
+	if m.Type != "" {
+		f["type"] = m.Type
 	}
 
 	return f

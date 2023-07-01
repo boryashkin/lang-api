@@ -31,6 +31,7 @@ func (s *MyMediaServiceServer) FindMedia(ctx context.Context, req *FindMediaRequ
 	reply.Media = make([]*Media, 0)
 	filter := entity.MediaFilter{
 		Text: req.Text,
+		Type: req.Type,
 	}
 	if req.Pagination != nil {
 		filter.Limit = req.Pagination.Limit
@@ -93,7 +94,6 @@ func (s *MyMediaServiceServer) prefUri(uri string) string {
 	if uri != "" {
 		return s.mediaPrefixCdn + uri
 	}
-	fmt.Println("EMPTY !")
 
 	return ""
 }
