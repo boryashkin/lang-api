@@ -14,6 +14,7 @@ envFrom:
   NODE_ENV: "production"
   ASSET_PREFIX_CDN: "https://cdn.cdn/"
   MONGODB_URI: "mongodb://localhost"
+  ADMIN_MAIL: "langapi@borisd.ru"
   SMTP_USER: "langapi@borisd.ru"
   SMTP_PASS: "somepass"
   MEDIATEXT_GRPC_URI: "grpc-api:3001"

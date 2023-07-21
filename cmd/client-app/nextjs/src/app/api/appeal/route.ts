@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authOptions, getUserFromSession } from '@/lib/auth/authoptions';
 import { authorize } from '@/errors/http/authorize';
-import { mailer } from '@/lib/mailer/Mailer';
+import { mailer } from '@/lib/mailer/mailer';
 import { Appeal } from '@/interfaces/Appeal';
 
 export async function POST(request: Request) {
