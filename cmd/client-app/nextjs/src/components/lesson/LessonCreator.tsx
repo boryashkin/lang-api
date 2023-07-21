@@ -1,7 +1,7 @@
 'use client';
 
 import { Media } from "@/proto/generated/Media";
-import { ChangeEvent, FormEvent, MouseEventHandler, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import Text, { TextType } from "@/interfaces/Text";
 import { LessonHolder } from "./LessonHolder";
 import { getNumberFromFromValue, getStringFromFromValue } from "@/helpers/FormHelpers";

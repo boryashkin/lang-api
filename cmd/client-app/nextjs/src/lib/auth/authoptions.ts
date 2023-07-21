@@ -4,7 +4,7 @@ import Email from "next-auth/providers/email";
 import { AuthOptions, CallbacksOptions, getServerSession } from "next-auth";
 import { Adapter, AdapterUser } from "next-auth/adapters";
 import type { Adapter as CAdapter } from "@auth/core/adapters"
-import { mailerServerConfig } from "../mailer/Mailer";
+import { mailerServerConfig } from "../mailer/mailer";
 
 // MongoDBAdapter implements Adapter from "@auth/core/adapters"
 const adapter: Adapter|CAdapter = MongoDBAdapter(clientPromise)
