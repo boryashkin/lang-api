@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   const rawMedia: Media = await request.json()
   console.log("request.json", rawMedia)
-  if (typeof rawMedia.text == "undefined" || typeof rawMedia.type == "undefined" || rawMedia.type != TextType.Text) {
+  if (typeof rawMedia.text != "string" || typeof rawMedia.type == "undefined" || rawMedia.type != TextType.Text) {
     return NextResponse.json({ "error": "Invalid request" }, { status: 400 })
   }
 

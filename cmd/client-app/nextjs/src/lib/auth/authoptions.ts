@@ -4,10 +4,8 @@ import Email from "next-auth/providers/email";
 import { AuthOptions, CallbacksOptions, getServerSession } from "next-auth";
 import { Adapter, AdapterUser } from "next-auth/adapters";
 import type { Adapter as CAdapter } from "@auth/core/adapters"
+import { mailerServerConfig } from "../mailer/Mailer";
 
-
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASS;
 // MongoDBAdapter implements Adapter from "@auth/core/adapters"
 const adapter: Adapter|CAdapter = MongoDBAdapter(clientPromise)
 
@@ -39,7 +37,7 @@ export const authOptions: AuthOptions = {
     providers: [
         Email({
             name: "langapi",
-            server: { host: "smtp.yandex.ru", port: 465, auth: { user: smtpUser, pass: smtpPass } },
+            server: mailerServerConfig,
             from: "LangAPI <langapi@borisd.ru>",
         }),
     ],

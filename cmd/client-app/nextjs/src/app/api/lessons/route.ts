@@ -2,10 +2,9 @@ import { LessonClient } from "@/clients/Mediatext"
 import Lesson from "@/interfaces/Lesson"
 import { NextResponse } from "next/server"
 import * as grpc from '@grpc/grpc-js';
-import { AdapterSession } from "next-auth/adapters";
-import { Session, getServerSession } from "next-auth";
 import { authOptions, getUserFromSession } from "@/lib/auth/authoptions";
 import { authorize } from "@/errors/http/authorize";
+import slugify from "@sindresorhus/slugify";
 
 let client = new LessonClient(process.env.MEDIATEXT_GRPC_URI ?? "", grpc.credentials.createInsecure())
 
@@ -16,9 +15,15 @@ export async function POST(request: Request) {
     }
 
     const rawLesson: Lesson = await request.json()
-    if (typeof rawLesson.name == "undefined" || typeof rawLesson.slug == "undefined") {
-        return NextResponse.json({ "error": "Invalid request" }, { status: 400 })
+    if (typeof rawLesson.name != "string" || typeof rawLesson.slug != "string") {
+        return NextResponse.json({ "error": "Name and slug must be strings" }, { status: 400 })
     }
+
+    rawLesson.slug = slugify(rawLesson.slug)
+    if (rawLesson.name == "" || rawLesson.slug == "") {
+        return NextResponse.json({ "error": "Name or slug invalid" }, { status: 400 })
+    }
+
     console.log(rawLesson, rawLesson.language, rawLesson.name, rawLesson.slug)
 
     // to overcome linter. It will be reassigned in a catch below

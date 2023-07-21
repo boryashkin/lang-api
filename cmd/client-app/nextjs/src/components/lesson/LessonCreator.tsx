@@ -1,7 +1,7 @@
 'use client';
 
 import { Media } from "@/proto/generated/Media";
-import { ChangeEvent, ChangeEventHandler, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, MouseEventHandler, useEffect, useState } from "react";
 import Text, { TextType } from "@/interfaces/Text";
 import { LessonHolder } from "./LessonHolder";
 import { getNumberFromFromValue, getStringFromFromValue } from "@/helpers/FormHelpers";
@@ -9,6 +9,23 @@ import { StoreLessonElementRequest } from "@/proto/generated/StoreLessonElementR
 import slugify from "@sindresorhus/slugify";
 import { HydrateTextWithRules } from "@/helpers/LessonHelpers";
 import { ElementRule } from "@/proto/generated/ElementRule";
+import { Tooltip } from "../help/Tooltip";
+import { Appeal } from "@/interfaces/Appeal";
+
+const howToAddRulesTooltip = `The manipulated text can be seen above
+change values below to see the result above. 
+
+
+"Start"/"stop" are character positions starting from 0
+
+for example for a phrase "My text looks like this"
+start "0" end "2" will highlight the word "My". 
+You can use keyboard arrows to change start/stop.
+
+"title" and "text" can be seen when the highlight is clicked.
+
+Try it
+`
 
 interface SelectedItem extends ElementRule {
     start: number
@@ -18,7 +35,7 @@ interface SelectedItem extends ElementRule {
     name: string
 }
 
-const emptySelection: SelectedItem[] = [];
+const emptySelection: SelectedItem[] = [{ start: 0, stop: 1, color: "", name: "", note: "" }];
 const emptyText: Text = {
     id: "",
     slug: "",
@@ -53,31 +70,30 @@ const createTextFromSelected = (media: Media | undefined, elName: string, select
     let item = createTextFromProps(media)
     item.title = elName
     if (selected.length == 0) {
-        return item
+        return HydrateTextWithRules(item, [{ start: 0, stop: media?.text?.length ?? 10, name: "add a title", color: "slate" }])
     }
     return HydrateTextWithRules(item, selected)
 }
 
-function RuleForm(props: { 
-    index: number, 
-    item: Media | undefined, 
-    handleSelectedTrigger: (e: FormEvent<HTMLFormElement>) => void 
+function RuleForm(props: {
+    index: number,
+    item: Media | undefined,
+    handleSelectedTrigger: (e: FormEvent<HTMLFormElement>) => void
 }) {
     return (
-        <form data-index={props.index} onChange={props.handleSelectedTrigger}>
-            Character positions:
+        <form data-index={props.index} onChange={props.handleSelectedTrigger} className="border-b-2 border-dashed border-gray-100">
             Start: <input
                 type="number"
                 name="start"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                min={0} max={props.item?.text?.length ?? 0} className="mx-2 px-2 border rounded-md border-gray-200" />
+                min={0} max={props.item?.text?.length ?? 300} className="mx-2 px-2 border rounded-md border-gray-200" />
             Stop: <input
                 type="number"
                 name="stop"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                min={0} max={props.item?.text?.length ?? 0} className="mx-2 px-2 border rounded-md border-gray-200" />
+                min={0} max={props.item?.text?.length ?? 300} className="mx-2 px-2 border rounded-md border-gray-200" />
             Color:
             <select name="color" className="mx-2 px-2 border rounded-md border-gray-200" >
                 <option value="slate" className="bg-slate-200">slate</option>
@@ -126,17 +142,17 @@ async function addElementToALesson(lessonId: string, name: string, item: Media, 
         rules: selected,
         order: 1,
     }
-    
+
     const JSONdata = JSON.stringify(req)
     const endpoint = '/api/lessons/' + lessonId + '/elements'
     const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSONdata,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSONdata,
     }
- 
+
     const response = await fetch(endpoint, options)
 
     if (!response.ok) {
@@ -146,6 +162,26 @@ async function addElementToALesson(lessonId: string, name: string, item: Media, 
 
     let res = response.json()
     console.log("addElementToALesson", response.status)
+}
+
+const appealSender = async (appeal: Appeal) => {
+    const JSONdata = JSON.stringify(appeal)
+            const endpoint = '/api/appeal'
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSONdata,
+            }
+
+            const response = await fetch(endpoint, options)
+
+            if (!response.ok) {
+                console.error("appeal error", response.status)
+                throw new Error("Failed to send an appeal")
+            }
+            console.log("appeal status", response.status)
 }
 
 export default function LessonCreator(props: { lessonId: string, item: Media | undefined, closingHandler: () => void }) {
@@ -170,37 +206,60 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
             note: getStringFromFromValue(data.get("note")),
             name: getStringFromFromValue(data.get("title")),
         }
-    
+        if (selection.stop <= selection.start || isNaN(selection.stop)) {
+            selection.stop = selection.start + 1
+        }
+
         setSelected((state) => {
-            console.log("before upd selected", idx, state); 
-            state[idx] = selection; 
-            console.log("after upd selected", idx, state); 
+            console.log("before upd selected", idx, state);
+            state[idx] = selection;
+            console.log("after upd selected", idx, state);
             return [...state]
         })
 
     }
     const handleSubmitTrigger = () => {
+
         setSelected((state) => {
             console.log("before submit", state, "elName", elName)
             if (props.item) {
                 addElementToALesson(props.lessonId, elName, props.item, state).
-                then(() => {
-                    window.location.reload()
-                })
+                    then(() => {
+                        window.location.reload()
+                    })
             }
             return state
         })
     }
-    const [currentText, setCurrentText] = useState(createTextFromProps(props.item));
+    const [currentText, setCurrentText] = useState(createTextFromSelected(props.item, elName, []));
     const [ruleForms, setRuleForms] = useState([
         <RuleForm key={0} index={0} item={props.item} handleSelectedTrigger={handleSelectedTrigger} />
     ]);
+
+    const fixVideoCb = () => {
+        setCurrentText((state) => {
+            if (confirm("Request admins to fix the video? If something is wrong with the video, press 'OK' and it will be fixed a bit later.")) {
+                appealSender({entity: "media", id: state.id})
+                .then(() => {
+                    alert("Thanks! Now you can use the video as it is. It will be fixed in your lesson automatically later.")
+                })
+                .catch(() => {
+                    alert("Error! Failed to send a request.")
+                })            
+            }
+            
+            
+            
+            return state
+        })
+        
+    }
 
     useEffect(() => {
         console.log("useEffect selected", elName)
         // do not mutate selected
         setCurrentText(createTextFromSelected(props.item, elName, [...selected]))
-    }, [selected, elName])
+    }, [selected, elName, props.item])
 
 
     const pushNewRuleForm = (key: number) => {
@@ -230,7 +289,7 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
 
                         <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                Подготовьте элемент для урока
+                                Adding an element
                             </h3>
                             <button onClick={props.closingHandler} type="button" className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="staticModal">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
@@ -238,27 +297,27 @@ export default function LessonCreator(props: { lessonId: string, item: Media | u
                         </div>
 
                         <div className="p-6 space-y-6">
-                            <input onChange={handleTitleChange} name="lesson-element-name" id="lesson-element-name" className="w-full" placeholder="Enter a title if you need..."/>
-                            <h3 className="text-lg">{props.item.text}</h3>
+                            <input onChange={handleTitleChange} name="lesson-element-name" id="lesson-element-name" className="w-full" placeholder="Enter a title if you need..." />
+                        </div>
+
+                        <div className="p-6 space-y-6 relative">
+                            <span className="text-lg">Preview </span><i>(scroll down under the preview to add highlights)</i>
+                            <br /><button onClick={fixVideoCb} style={{ marginBottom: -80 }} className="z-50 relative block ml-6 justify-center rounded-md bg-opacity-50 bg-white px-1 py-1 text-xs font-light text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Fix the video</button>
+                            <LessonHolder text={currentText} />
                         </div>
 
                         <span className="mx-6 text-sm">Set values to highligh the text:</span>
                         <div className="p-6 space-y-6 bg-gray-50">
+                            <Tooltip btnTitle="How?" tooltip={howToAddRulesTooltip} />
                             {ruleForms}
                         </div>
 
                         <div className="p-6 space-y-6">
-                            <button onClick={() => {pushNewRuleForm(ruleForms.length)}} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">+</button>
+                            <button onClick={() => { pushNewRuleForm(ruleForms.length) }} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">+</button>
                             <button onClick={() => popNewRuleForm()} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">-</button>
                             <span className="mx-6 text-sm">to add or remove hilight forms</span>
+                            <Tooltip btnTitle="What's this?" tooltip="Click + to add on more highlight, - to remove the latest" />
                         </div>
-
-                        <div className="p-6 space-y-6 relative">
-                            <span className="text-lg">Preview:</span>
-                            <i>change the values above and see the result below</i>
-                            <LessonHolder text={currentText} /> 
-                        </div>
-
 
                         <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                             <button onClick={handleSubmitTrigger} data-modal-hide="staticModal" type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add element to the lesson</button>

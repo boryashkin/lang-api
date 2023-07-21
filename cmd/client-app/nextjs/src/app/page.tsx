@@ -1,25 +1,14 @@
-import LessonListContainer from '@/components/lesson/LessonHolder';
-import Text, { TextType } from '@/interfaces/Text';
+import { Metadata } from 'next';
 import Link from 'next/link';
 
-const defaultText: Text = {
-  id: "1",
-  slug: "1",
-  posterUri: "",
-  mediaUri: "",
-  title: "Сервис для изучения языков",
-  text: "Учите английский на огромном количестве реальных примеров. Здесь вы можете отработать как правила языка, так и произношение.\n\nСмотрите видео, слушайте аудио и читайте тексты, а сервис подберет вам примеры в соответствии с выбранными фильтрами.\nНажмите Вперёд, чтобы продолжить.",
-  rules: [
-    { text: "Учите английский на огромном количестве ", ruleDescription: "", ruleName: "", color: "" },
-    { text: "реальных примеров", ruleDescription: "Примеры взяты из сериалов, фильмов, блогов и подкастов", ruleName: "Описание", color: "red" },
-    { text: ". Здесь вы можете отработать как правила языка, так и произношение. \n\nСмотрите видео, слушайте аудио и читайте тексты, а сервис подберет вам примеры в соответствии с ", ruleDescription: "", ruleName: "", color: "" },
-    { text: "выбранными фильтрами", ruleDescription: "Например, можно выбрать времена (12 english tenses), части речи, языковые конструкции и т.п.", ruleName: "Функционал фильтров", color: "cyan" },
-    { text: ".\n", ruleDescription: "", ruleName: "", color: "" },
-    { text: "Нажмите Вперёд", ruleDescription: "Кнопка Вперёд перенесет вас на следующий пример", ruleName: "Механика", color: "" },
-    { text: ", чтобы продолжить.", ruleDescription: "", ruleName: "", color: "" },
-  ],
-  type: TextType.Text,
-};
+export const metadata: Metadata = {
+  title: 'Languages learning platform',
+  description: 'Learn languages with lots of examples. Lessons are highlighted and annotated.',
+  openGraph: {
+    title: "Languages learning platform",
+    description: "Learn languages with lots of examples. Lessons are highlighted and annotated.",
+  }
+}
 
 export default function Home() {
 

@@ -53,8 +53,7 @@ func main() {
 	}
 	leftBorder := float64(0)
 	rightBorder := float64(0)
-	if fromEpisode > 0 && toEpisode > 0 && toEpisode-fromEpisode == 1 {
-		// editing is only for specific episodes
+	if fromEpisode > 0 && toEpisode > 0 {
 		if len(args) > 5 {
 			leftBorder, err = strconv.ParseFloat(args[5], 64)
 			if err != nil {
@@ -73,6 +72,7 @@ func main() {
 	if err != nil {
 		panic("falied to open subs")
 	}
+	subs.RemoveStyling()
 	if fromEpisode > len(subs.Items) {
 		panic("episode num must not be bigger than number of lines")
 	} else if fromEpisode > 0 {
@@ -80,9 +80,6 @@ func main() {
 	}
 	if toEpisode > len(subs.Items) || toEpisode == 0 {
 		toEpisode = len(subs.Items)
-	}
-	if toEpisode > 0 {
-		toEpisode--
 	}
 
 	i := fromEpisode
@@ -142,7 +139,7 @@ func main() {
 	close(tasks)
 	wg.Wait()
 
-	tmpJson, err := os.Create("/tmp/dat2")
+	tmpJson, err := os.Create("/tmp/dat2-" + randomPrefix)
 	if err != nil {
 		panic("failed to create tmp file")
 	}

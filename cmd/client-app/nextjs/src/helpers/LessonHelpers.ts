@@ -7,7 +7,7 @@ export const HydrateTextWithRules = (item: Text, elRules: ElementRule[]): Text =
     }
     let originalText = item.text
     if (originalText.length == 0) {
-        console.error("empty original text", item?.id)
+        console.error("empty original text", item)
         return item
     }
 

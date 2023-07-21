@@ -5,9 +5,14 @@ import Text, { TextType } from '@/interfaces/Text';
 import { notFound, redirect } from 'next/navigation';
 import * as grpc from '@grpc/grpc-js';
 import { HydrateTextWithRules } from '@/helpers/LessonHelpers';
+import { Metadata } from 'next';
 
 let client = new LessonClient(process.env.MEDIATEXT_GRPC_URI ?? "", grpc.credentials.createInsecure())
 
+export const metadata: Metadata = {
+  title: 'My lesson',
+  description: 'A lesson with highlighted text and media examples',
+}
 
 async function getLessonEnriched(slug: string): Promise<Lesson | undefined> {
   const lessons = await client.FindLessonsAsync({ slug: slug })
@@ -89,6 +94,16 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
     }
   }
   let currentText = lesson.texts[tmpIdx]
+
+  metadata.title = currentText.title
+  if (metadata.title == "") {
+    metadata.title = "Check my lesson"
+  }
+  metadata.description = "Learn about: " + currentText.text.substring(0, 120)
+  metadata.openGraph = {
+    title: metadata.title,
+    description: metadata.description,
+  }
 
   return (
     <div>

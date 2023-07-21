@@ -43,7 +43,10 @@ export default function LessonCreateForm() {
     const response = await fetch(endpoint, options)
 
     if (!response.ok) {
-      setFormError("Error " + response.statusText)
+      const result: {error: string} = await response.json()
+      .catch(() => {})
+
+      setFormError("Error: " + result.error ?? response.statusText)
       return
     }
 
@@ -109,9 +112,9 @@ export default function LessonCreateForm() {
     <form className="" method="get" onSubmit={handleFormTrigger}>
       <input name="lesson-name" onChange={handleInputChange} className="text-gray-900 mx-2 px-2 py-2 border rounded-md border-gray-200" placeholder='Lesson name' value={lessonNameValues.name} />      
       <br />
-      <input name="lesson-auto-slug" onChange={handleInputChange} className="mx-2 px-2 py-2 border rounded-md border-gray-200" type="checkbox" checked={lessonNameValues.autoSlug} /> Генерировать URL автоматически
+      <input name="lesson-auto-slug" onChange={handleInputChange} className="mx-2 px-2 py-2 border rounded-md border-gray-200" type="checkbox" checked={lessonNameValues.autoSlug} /> Generate a URL automatically
       <br />
-      <input name="lesson-slug" onChange={handleInputChange} className="text-gray-900 mx-2 px-2 py-2 border rounded-md border-gray-200" placeholder='URL' value={lessonNameValues.slug} />
+      <input name="lesson-slug" onChange={handleInputChange} className="text-gray-900 mx-2 px-2 py-2 border rounded-md border-gray-200" placeholder='URL (slug)' value={lessonNameValues.slug} />
       <div className="text-red-600">
         {formError}
       </div>
@@ -120,7 +123,7 @@ export default function LessonCreateForm() {
       <br />
       <i className="text-sm">the description will be used in previews for social networks and search engines</i>
       <br />
-      <button type="submit" className="inline-flex w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0">Создать</button>
+      <button type="submit" className="inline-flex w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0">Create</button>
     </form>
   );
 }
